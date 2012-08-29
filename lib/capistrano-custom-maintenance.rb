@@ -1,3 +1,4 @@
+require "capistrano-custom-maintenance/deploy"
 require "capistrano-custom-maintenance/version"
 
 module Capistrano
