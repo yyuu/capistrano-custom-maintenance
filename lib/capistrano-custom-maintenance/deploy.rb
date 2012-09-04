@@ -55,8 +55,21 @@ module Capistrano
 
               reason = maintenance_reason
               deadline = maintenance_deadline
-              template = File.read(maintenance_template)
-              result = ERB.new(template).result(binding)
+
+              begin
+                ic = fetch(:maintenance_input_encoding, nil)
+                template = File.read(maintenance_template, :external_encoding => ic)
+              rescue
+                template = File.read(maintenance_template)
+              end
+
+              _result = ERB.new(template).result(binding)
+              begin
+                oc = fetch(:maintenance_output_encoding, nil)
+                result = oc ? _result.encode(oc) : _result
+              rescue
+                result = _result
+              end
 
               put(result, maintenance_system_path, :mode => 0644)
             }

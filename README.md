@@ -48,6 +48,8 @@ Following options are available to manage your maintenance.
  * `:maintenance_system_path` - the path to the maintenance page.
  * `:maintenance_template_path` - the path to the maintenance templates.
  * `:maintenance_template` - the path to the template of maintenance page.
+ * `:maintenance_input_encoding` - encoding of maintenance page template. use system encoding by default.
+ * `:maintenance_output_encoding` - encoding of result maintenance page. use system encoding by default.
 
 ## Contributing
 
