@@ -16,6 +16,7 @@ role :db,  "192.168.33.10", :primary => true
 
 $LOAD_PATH.push(File.expand_path("../../lib", File.dirname(__FILE__)))
 require "capistrano-custom-maintenance"
+require "capistrano/configuration/resources/platform_resources"
 require "tempfile"
 
 def assert_file_exists(file, options={})
@@ -46,6 +47,15 @@ def assert_file_content(file, content, options={})
     raise if content != tempfile.read
   rescue
     logger.debug("assert_file_content_type(#{file}, #{content.dump}) failed.")
+    raise
+  end
+end
+
+def assert_file_encoding(file, encoding, options={})
+  begin
+    invoke_command("test $(nkf -g #{file.dump}) = #{encoding.dump}")
+  rescue
+    logger.debug("assert_file_encoding(#{file}, #{encoding.dump} failed.")
     raise
   end
 end
@@ -100,6 +110,8 @@ namespace(:test_default) {
   task(:setup) {
 #   set(:maintenance_template_path, File.expand_path("tmp/maintenance"))
     set(:maintenance_content_type, "text/html")
+    unset(:maintenance_input_encoding)
+    unset(:maintenance_output_encoding)
     reset_maintenance!
     find_and_execute_task("deploy:setup")
     find_and_execute_task("deploy")
@@ -115,6 +127,47 @@ namespace(:test_default) {
     assert_file_exists(File.join(current_path, "public", "system", "maintenance.html"))
     find_and_execute_task("deploy:web:enable")
     assert_file_not_exists(File.join(current_path, "public", "system", "maintenance.html"))
+  }
+}
+
+namespace(:test_with_encoding) {
+  task(:default) {
+    methods.grep(/^test_/).each do |m|
+      send(m)
+    end
+  }
+  before "test_with_encoding", "test_with_encoding:setup"
+  after "test_with_encoding", "test_with_encoding:teardown"
+
+  task(:setup) {
+    set(:maintenance_template_path, File.expand_path("templates", File.dirname(__FILE__)))
+    set(:maintenance_content_type, "text/html")
+    unset(:maintenance_input_encoding)
+    unset(:maintenance_output_encoding)
+    reset_maintenance!
+    find_and_execute_task("deploy:setup")
+    find_and_execute_task("deploy")
+    platform.packages.install("nkf") unless platform.packages.installed?("nkf")
+  }
+
+  task(:teardown) {
+    find_and_execute_task("deploy:web:enable")
+  }
+
+  task(:test_with_utf8) {
+    set(:maintenance_input_encoding, "utf-8")
+    set(:maintenance_output_encoding, "utf-8")
+    reset_maintenance!
+    find_and_execute_task("deploy:web:disable")
+    assert_file_encoding(File.join(current_path, "public", "system", "maintenance.html"), "UTF-8")
+  }
+
+  task(:test_with_eucjp) {
+    set(:maintenance_input_encoding, "utf-8")
+    set(:maintenance_output_encoding, "euc-jp")
+    reset_maintenance!
+    find_and_execute_task("deploy:web:disable")
+    assert_file_encoding(File.join(current_path, "public", "system", "maintenance.html"), "EUC-JP")
   }
 }
 
@@ -141,6 +194,8 @@ namespace(:test_with_html) {
   task(:setup) {
     set(:maintenance_template_path, File.expand_path("tmp/maintenance"))
     set(:maintenance_content_type, "text/html")
+    unset(:maintenance_input_encoding)
+    unset(:maintenance_output_encoding)
     reset_maintenance!
     find_and_execute_task("deploy:setup")
     find_and_execute_task("deploy")
@@ -197,6 +252,8 @@ namespace(:test_with_javascript) {
   task(:setup) {
     set(:maintenance_template_path, File.expand_path("tmp/maintenance"))
     set(:maintenance_content_type, "application/javascript")
+    unset(:maintenance_input_encoding)
+    unset(:maintenance_output_encoding)
     reset_maintenance!
     find_and_execute_task("deploy:setup")
     find_and_execute_task("deploy")
@@ -242,6 +299,8 @@ namespace(:test_with_json) {
   task(:setup) {
     set(:maintenance_template_path, File.expand_path("tmp/maintenance"))
     set(:maintenance_content_type, "application/json")
+    unset(:maintenance_input_encoding)
+    unset(:maintenance_output_encoding)
     reset_maintenance!
     find_and_execute_task("deploy:setup")
     find_and_execute_task("deploy")
