@@ -1,5 +1,5 @@
 module Capistrano
   module CustomMaintenance
-    VERSION = "0.0.3git"
+    VERSION = "0.1.0git"
   end
 end
