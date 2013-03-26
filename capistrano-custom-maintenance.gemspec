@@ -16,6 +16,7 @@ Gem::Specification.new do |gem|
   gem.version       = Capistrano::CustomMaintenance::VERSION
 
   gem.add_dependency("capistrano")
+  gem.add_dependency("capistrano-file-resources", ">= 0.1.1")
   gem.add_dependency("json")
   gem.add_dependency("mime-types")
   gem.add_development_dependency("net-scp", "~> 1.0.4")

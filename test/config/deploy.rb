@@ -16,7 +16,6 @@ role :db,  "192.168.33.10", :primary => true
 
 $LOAD_PATH.push(File.expand_path("../../lib", File.dirname(__FILE__)))
 require "capistrano-custom-maintenance"
-require "mime/types"
 require "tempfile"
 
 def assert_file_exists(file, options={})
