@@ -8,10 +8,11 @@ module Capistrano
     def self.extended(configuration)
       configuration.load {
         namespace(:deploy) {
-          _cset(:maintenance_template_path, File.dirname(__FILE__), 'templates')
+          _cset(:maintenance_template_path, File.expand_path("templates", File.dirname(__FILE__)))
           _cset(:maintenance_template) {
             ts = [
               File.join(maintenance_template_path, "#{maintenance_basename}.#{maintenance_suffix}.erb"),
+              File.join(maintenance_template_path, "#{maintenance_basename}.#{maintenance_suffix}"),
               File.join(maintenance_template_path, "#{maintenance_basename}.erb"),
             ]
             ts << File.join(maintenance_template_path, "#{maintenance_basename}.rhtml") if maintenance_suffix == 'html'
@@ -27,6 +28,7 @@ module Capistrano
             type, = MIME::Types[maintenance_content_type]
             type.extensions.first
           }
+          _cset(:maintenance_basename, "maintenance")
           _cset(:maintenance_filename) { # filename of maintenance document, not including path part
             "#{maintenance_basename}.#{maintenance_suffix}"
           }
