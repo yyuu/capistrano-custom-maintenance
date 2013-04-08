@@ -20,5 +20,4 @@ Gem::Specification.new do |gem|
   gem.add_dependency("json")
   gem.add_dependency("mime-types")
   gem.add_development_dependency("capistrano-platform-resources", ">= 0.1.0")
-  gem.add_development_dependency("vagrant", "~> 1.0.6")
 end
